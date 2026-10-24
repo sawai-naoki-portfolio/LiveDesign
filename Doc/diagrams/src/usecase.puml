@@ -1,0 +1,57 @@
+@startuml usecase
+!include _style.iuml
+title ユースケース図 — LiveDesign
+left to right direction
+
+actor "配信者" as Streamer
+actor "視聴者" as Viewer
+actor "運営者" as Admin
+actor "OBS /\nTikTok LIVE Studio" as OBS
+actor "TikTok LIVE" as TikTok
+actor "外部ツール\n(Streamer.bot 等)" as Tool
+
+rectangle "LiveDesign（Web サービス）" {
+  package "アカウント" {
+    usecase "登録・ログイン\n（メール / Google / TikTok）" as UC1
+    usecase "TikTok の @ID を接続" as UC2
+    usecase "合鍵・API キーを作り直す" as UC3
+  }
+  package "アーティストモード" {
+    usecase "配信画面をデザインする\n（図形・ペン・文字・レイヤー）" as UC4
+    usecase "ウィジェットを置く\n（チャット・アラート・ゴール…）" as UC5
+    usecase "イベント → アクションの\nルールを作る" as UC6
+    usecase "テストイベントを流す" as UC7
+    usecase "OBS 用 URL をコピー" as UC8
+  }
+  package "クリエイターモード" {
+    usecase "ギミックを作る\n（オブジェクト・物理）" as UC9
+    usecase "ブループリントで\nノードをつなぐ" as UC10
+    usecase "関数・マクロを自作する" as UC11
+    usecase "再生して確かめる" as UC12
+  }
+  usecase "オーバーレイを表示する" as UC13
+  usecase "イベントで演出が動く" as UC14
+  usecase "API でイベントを送る" as UC15
+  usecase "利用者を管理する\n（パスワード再設定・プラン）" as UC16
+}
+
+Streamer --> UC1
+Streamer --> UC2
+Streamer --> UC3
+Streamer --> UC4
+Streamer --> UC6
+Streamer --> UC8
+Streamer --> UC9
+Streamer --> UC10
+UC5 .> UC4 : <<extend>>
+UC7 .> UC6 : <<extend>>
+UC11 .> UC10 : <<extend>>
+UC12 .> UC9 : <<include>>
+OBS --> UC13
+Viewer --> TikTok : コメント・ギフト・いいね
+TikTok --> UC14
+UC14 .> UC13 : 演出を配信
+Tool --> UC15
+UC15 .> UC14
+Admin --> UC16
+@enduml

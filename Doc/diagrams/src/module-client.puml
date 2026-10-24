@@ -1,0 +1,74 @@
+@startuml module-client
+!include _style.iuml
+title モジュール構成図（ブラウザ）— public/js/studio
+
+package "studio.html" {
+  [studio.js\n画面の切り替え] as studio
+  package "editor/（アーティストモード）" {
+    [home.js\n一覧・はじめかた・設定] as ehome
+    [canvas.js\nキャンバス・ペン・変形] as canvas
+    [inspector.js] as einsp
+    [layers.js / library.js / assets.js] as layers
+    [rules.js\nイベント → アクション] as erules
+    [testpanel.js] as test
+    [document.js\nUndo / Redo・自動保存] as doc
+    [api.js / ws] as api
+  }
+  package "creator/（クリエイターモード）" {
+    [creator.js] as creator
+    [hierarchy.js / inspector.js] as chier
+    [sceneview.js\nシーン] as sv
+    [graph.js\nブループリントエディタ] as cgraph
+    [functions.js\n関数・マクロ] as funcs
+    [console.js] as cons
+    [templates.js / minigames.js\ntemplatekit.js] as tpl
+  }
+}
+package "overlay.html" {
+  [overlay.js\nOBS に映す画面] as overlay
+}
+package "shared/（エディタと OBS の共通部品）" {
+  [model.js\nデータ構造] as model
+  [render.js / widgets.js\nanimations.js / particles.js] as render
+  [runtime.js\nルールのアクションを実行] as runtime
+  package "gimmick/（ギミックのエンジン。描画以外は DOM 非依存）" {
+    [nodes.js\nノードの種類] as nodes
+    [graph.js\nブループリントの実行] as ggraph
+    [expr.js\n式（eval を使わない）] as expr
+    [world.js\n物理・当たり判定・パーティクル] as world
+    [player.js\n描画と再生] as player
+    [synth.js\n効果音シンセ] as synth
+    [registry.js / defaults.js] as reg
+  }
+}
+
+studio --> ehome
+studio --> creator
+ehome --> canvas
+canvas --> einsp
+canvas --> layers
+canvas --> erules
+canvas --> test
+canvas --> doc
+doc --> api
+creator --> chier
+creator --> sv
+creator --> cgraph
+cgraph --> funcs
+creator --> cons
+creator --> tpl
+creator --> doc
+
+canvas ..> render
+overlay ..> render
+overlay ..> runtime
+render ..> model
+sv ..> player
+render ..> player : ギミック要素
+player --> world
+player --> ggraph
+ggraph --> nodes
+ggraph --> expr
+player --> synth
+player --> reg
+@enduml

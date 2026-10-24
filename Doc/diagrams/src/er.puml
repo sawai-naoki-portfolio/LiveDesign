@@ -1,0 +1,69 @@
+@startuml er
+!include _style.iuml
+title ER 図 — SQLite（node:sqlite）
+skinparam linetype ortho
+hide circle
+
+entity "users\n利用者" as users {
+  * id : TEXT <<PK>>
+  --
+  email : TEXT <<UNIQUE>>
+  password_hash : TEXT（scrypt）
+  * display_name : TEXT
+  * avatar_url : TEXT = ''
+  * tiktok_username : TEXT = ''
+  * overlay_key : TEXT <<UNIQUE>>（OBS URL の合鍵）
+  * api_key : TEXT <<UNIQUE>>
+  * plan : TEXT = 'free'
+  * created_at : INTEGER
+}
+
+entity "identities\n外部アカウントの紐づけ" as identities {
+  * provider : TEXT <<PK>>（google / tiktok）
+  * provider_user_id : TEXT <<PK>>
+  --
+  * user_id : TEXT <<FK>>
+}
+
+entity "sessions\nログイン" as sessions {
+  * token_hash : TEXT <<PK>>（SHA-256）
+  --
+  * user_id : TEXT <<FK>>
+  * created_at : INTEGER
+  * expires_at : INTEGER
+}
+
+entity "scenes\nデザイン" as scenes {
+  * id : TEXT <<PK>>
+  --
+  * user_id : TEXT <<FK>>
+  * data : TEXT（JSON 最大 8MB）
+  * updated_at : INTEGER
+}
+
+entity "gimmicks\nギミック" as gimmicks {
+  * id : TEXT <<PK>>
+  --
+  * user_id : TEXT <<FK>>
+  * data : TEXT（JSON 最大 8MB）
+  * updated_at : INTEGER
+}
+
+entity "user_state\nカウンター・タイマー" as state {
+  * user_id : TEXT <<PK>> <<FK>>
+  --
+  * data : TEXT（JSON）
+}
+
+users ||--o{ identities
+users ||--o{ sessions
+users ||--o{ scenes
+users ||--o{ gimmicks
+users ||--o| state
+
+note bottom of users
+  すべての子テーブルは ON DELETE CASCADE。
+  素材ファイルは DB ではなく data/assets/<userId>/ に置き、
+  アカウント削除時に一緒に片付ける。
+end note
+@enduml

@@ -1,0 +1,56 @@
+@startuml architecture
+!include _style.iuml
+title システム構成図 — LiveDesign
+
+node "配信者の PC" {
+  component "ブラウザ\n/studio（エディタ）\nCookie でログイン" as Editor
+  component "OBS / TikTok LIVE Studio\n/overlay?id=…&k=合鍵" as Overlay
+}
+
+cloud "インターネット" {
+  node "VPS / コンテナ（Docker）" {
+    component "Caddy\nHTTPS 終端・証明書自動更新" as Caddy
+    node "Node.js 22（index.js）" as Node {
+      component "net.js\nExpress 5 + ws\nCSP・CSRF・心拍" as Net
+      component "auth.js\nログイン・セッション\n合鍵・API キー" as Auth
+      component "studio.js\nデザイン・ギミックの REST\nイベント → ルール判定" as Studio
+      component "workspace.js\n利用者ごとの作業場\n（メモリ・使っている人の分だけ）" as WS
+      component "assets.js\n素材のアップロード・配布" as Assets
+      component "live.js\n@ID ごとに 1 本の接続を共有" as Live
+      component "demo.js\nダミーイベント" as Demo
+    }
+    database "SQLite\n(node:sqlite)\nlivedesign.db" as DB
+    folder "data/assets/\n利用者ごとの素材" as Files
+  }
+}
+
+cloud "TikTok LIVE" as TikTok
+cloud "Euler Stream\n（署名 API）" as Euler
+cloud "Google / TikTok\nOAuth" as OAuth
+
+Editor --> Caddy : HTTPS / WSS
+Overlay --> Caddy : HTTPS / WSS
+Caddy --> Net
+Net --> Auth
+Net --> Studio
+Studio --> WS
+Studio --> Assets
+Auth --> DB
+WS --> DB
+Assets --> Files
+Live --> Studio : studioIngest()
+Demo ..> Studio : DEMO_MODE
+Live --> TikTok : tiktok-live-connector
+Live --> Euler : EULER_API_KEY
+Auth --> OAuth
+
+note right of Live
+  画面を開いている間だけ繋ぐ。
+  同じ @ID を何人が入れても接続は 1 本で、
+  届いたイベントを読む人全員に配る。
+end note
+note bottom of Net
+  WebSocket は「その人の画面にだけ」配る。
+  受け取りは 4KB で切り、30 秒ごとの ping で応答のない接続を切る。
+end note
+@enduml

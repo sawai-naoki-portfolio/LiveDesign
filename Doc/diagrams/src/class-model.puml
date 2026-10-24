@@ -1,0 +1,140 @@
+@startuml class-model
+!include _style.iuml
+title クラス図 — データモデル（デザイン・ギミック・作業場）
+
+package "保存されるドキュメント（JSON。lib/studio で検査してから保存）" {
+  class Scene <<デザイン>> {
+    + id : string
+    + name : string
+    + width / height : number  // 16〜8192
+    + background : string
+    + elements : Element[]  // 最大 500
+    + rules : Rule[]  // 最大 100
+    + meta : object
+    + updatedAt : number
+  }
+  class Element {
+    + id / type / name : string
+    + x / y / w / h / rotation / opacity
+    + visible / locked / startHidden : boolean
+    + children : Element[]  // group のみ。入れ子 4 段まで
+    + （type ごとの見た目の設定）
+  }
+  enum ElementType {
+    rect / ellipse / polygon / path / text / image / group
+    chat / danmaku / alert / goal / leaderboard / events / timer
+    gimmick
+  }
+  class Rule {
+    + id / name : string
+    + enabled : boolean
+    + trigger : Trigger
+    + cooldown / userCooldown : number（秒）
+    + actions : Action[]  // 最大 12
+  }
+  class Trigger {
+    + type : chat|gift|follow|share|like|join|envelope|any
+    + giftName : string
+    + minCoins / maxCoins : number
+    + match : any|command|contains|exact
+    + keyword : string
+    + likeEvery : number
+    + users : string
+  }
+  class Action {
+    + kind : alert|sound|animate|visibility|counter|timer
+    　　　 |particles|tts|text|gimmick
+    + （kind ごとの設定）
+  }
+
+  class Gimmick <<ギミック>> {
+    + id / name / description : string
+    + kind : game|effect|sound|other
+    + width / height / background
+    + gravity : number
+    + variables : Variable[]
+    + objects : GameObject[]
+    + graph : Graph  // イベントグラフ
+    + functions : FunctionDef[]
+    + sounds : Sound[]
+    + effects : Effect[]
+  }
+  class GameObject {
+    + id / name / tag : string
+    + x / y / w / h / rotation / opacity
+    + prefab / hidden : boolean
+    + shape / physics / edge / motion …
+  }
+  class Variable {
+    + name : string
+    + type : number|string|bool|entity|any
+    + value
+    + exposed : boolean  // アーティストモードで変えられる
+    + label : string
+  }
+  class Graph {
+    + nodes : Node[]
+    + links : Link[]
+    + comments : Comment[]
+  }
+  class Node {
+    + id : string
+    + type : string  // "event.gift" など
+    + x / y : number
+    + values : object  // つながっていない入力ピンの値
+  }
+  class Link {
+    + from / fromPin : string
+    + to / toPin : string
+  }
+  class FunctionDef {
+    + id / name / desc : string
+    + kind : function|macro
+    + pure : boolean
+    + inputs / outputs : Pin[]
+    + graph : Graph
+  }
+}
+
+package "メモリ上の作業場（server/workspace.js）" {
+  class Workspace {
+    + userId : string
+    + scenes : Map<id, Scene>
+    + gimmicks : Map<id, Gimmick>
+    + engine : RuleEngine
+    + vars : StudioVars
+    + supporters : Map  // ギフト額ランキング
+    + recentChats / recentEvents
+    + eventSeq : number
+  }
+  class RuleEngine <<lib/studio/rules.js>> {
+    + evaluate(scenes, event) : {sceneId, rule, extra}[]
+    - クールダウン（全体・1 人ごと）
+  }
+  class StudioVars <<lib/studio/variables.js>> {
+    + applyCounter(name, op, amount)
+    + applyTimer(name, op, amount)
+    + recordEvent(event)  // いいね・コイン等の集計
+  }
+}
+
+Scene "1" *-- "*" Element
+Element --> ElementType
+Element "1" o-- "*" Element : children
+Scene "1" *-- "*" Rule
+Rule *-- Trigger
+Rule "1" *-- "*" Action
+Element ..> Gimmick : type=gimmick のとき\nギミック ID を参照
+Action ..> Gimmick : kind=gimmick で合図
+Gimmick *-- "*" GameObject
+Gimmick *-- "*" Variable
+Gimmick *-- "1" Graph
+Gimmick *-- "*" FunctionDef
+FunctionDef *-- Graph
+Graph *-- "*" Node
+Graph *-- "*" Link
+Workspace o-- "*" Scene
+Workspace o-- "*" Gimmick
+Workspace *-- RuleEngine
+Workspace *-- StudioVars
+@enduml

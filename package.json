@@ -1,0 +1,24 @@
+{
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "tiktok-live-connector": "^2.1.1-beta1",
+    "ws": "^8.18.3"
+  },
+  "name": "livedesign",
+  "version": "1.0.0",
+  "description": "配信・ゲーム実況用のウィジェットデザインツール（デザインスタジオ＋TikTok LIVE のイベント連動オーバーレイ）",
+  "main": "index.js",
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning index.js",
+    "test": "node test/run.mjs",
+    "admin": "node --disable-warning=ExperimentalWarning scripts/admin.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  }
+}

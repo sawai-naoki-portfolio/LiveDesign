@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>ログイン - LiveDesign</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap">
+  <link rel="stylesheet" href="css/site.css">
+</head>
+
+<body class="auth-page">
+  <div class="wrap">
+    <header class="site-head">
+      <a class="brand" href="/"><span class="logo">◆</span>LiveDesign</a>
+    </header>
+  </div>
+
+  <main class="auth-main">
+    <div class="auth-card">
+      <div class="tabs" role="tablist">
+        <button type="button" id="tabLogin" class="active" role="tab">ログイン</button>
+        <button type="button" id="tabSignup" role="tab">新規登録</button>
+      </div>
+
+      <h1 id="title">ログイン</h1>
+      <p class="lead" id="lead">デザインと配信の設定はアカウントに保存されます。</p>
+
+      <form id="form" novalidate>
+        <label class="field" id="nameField" hidden>
+          <span>表示名（あとで変えられます）</span>
+          <input type="text" id="displayName" autocomplete="nickname" maxlength="60">
+        </label>
+        <label class="field">
+          <span>メールアドレス</span>
+          <input type="email" id="email" autocomplete="email" required>
+        </label>
+        <label class="field">
+          <span>パスワード</span>
+          <input type="password" id="password" autocomplete="current-password" required minlength="8">
+        </label>
+        <p class="error" id="error" role="alert"></p>
+        <button type="submit" class="btn primary block" id="submit">ログイン</button>
+      </form>
+
+      <div id="oauthBlock" hidden>
+        <div class="or">または</div>
+        <div class="oauth">
+          <a class="btn" id="googleBtn" hidden>Google で続ける</a>
+          <a class="btn tiktok" id="tiktokBtn" hidden>TikTok で続ける</a>
+        </div>
+      </div>
+
+      <p class="fine" id="closedNote" hidden>いまは新規登録を受け付けていません。</p>
+    </div>
+  </main>
+
+  <script src="js/site/login.js"></script>
+</body>
+
+</html>

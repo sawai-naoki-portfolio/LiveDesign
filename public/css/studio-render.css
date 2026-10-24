@@ -1,0 +1,293 @@
+/* public/css/studio-render.css
+   スタジオのデザインの描画（エディタとオーバーレイで共通）。
+   ここにある見た目は OBS にそのまま映るので、エディタの操作用の見た目（選択枠など）は
+   studio.css に置き、ここには入れない。 */
+
+.sd-scene {
+  position: relative;
+  overflow: hidden;
+  transform-origin: 0 0;
+  isolation: isolate;
+}
+
+.sd-el {
+  position: absolute;
+  box-sizing: border-box;
+  transform-origin: 50% 50%;
+}
+
+.sd-fx,
+.sd-enter,
+.sd-loop {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+}
+
+.sd-invisible { display: none !important; }
+.sd-off { visibility: hidden; }
+
+.sd-svg {
+  display: block;
+  overflow: visible;
+}
+
+.sd-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+
+.sd-text-inner {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+
+.sd-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.sd-image-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed rgba(255, 255, 255, 0.4);
+  background: repeating-conic-gradient(rgba(255, 255, 255, 0.08) 0 25%, transparent 0 50%) 0 0 / 24px 24px;
+  color: rgba(255, 255, 255, 0.7);
+  font: 600 18px "Noto Sans JP", sans-serif;
+}
+.sd-mode-overlay .sd-image-empty { border: 0; background: none; }
+
+/* ---- ループの動き ---- */
+.sd-loop-pulse { animation: sd-pulse var(--sd-loop-dur, 2s) ease-in-out infinite; }
+.sd-loop-float { animation: sd-float var(--sd-loop-dur, 2s) ease-in-out infinite; }
+.sd-loop-spin { animation: sd-spin var(--sd-loop-dur, 2s) linear infinite; }
+.sd-loop-shake { animation: sd-shake var(--sd-loop-dur, 2s) ease-in-out infinite; }
+.sd-loop-swing { animation: sd-swing var(--sd-loop-dur, 2s) ease-in-out infinite; }
+.sd-loop-blink { animation: sd-blink var(--sd-loop-dur, 2s) steps(1, end) infinite; }
+.sd-loop-glow { animation: sd-glow var(--sd-loop-dur, 2s) ease-in-out infinite; }
+.sd-loop-rainbow { animation: sd-rainbow var(--sd-loop-dur, 2s) linear infinite; }
+.sd-loop-wobble { animation: sd-wobble var(--sd-loop-dur, 2s) ease-in-out infinite; }
+.sd-loop-breathe { animation: sd-breathe var(--sd-loop-dur, 2s) ease-in-out infinite; }
+
+@keyframes sd-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+@keyframes sd-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8%); } }
+@keyframes sd-spin { to { transform: rotate(360deg); } }
+@keyframes sd-shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50% { transform: translateX(-2%) rotate(-1deg); }
+  20%, 40% { transform: translateX(2%) rotate(1deg); }
+  60% { transform: none; }
+}
+@keyframes sd-swing { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+@keyframes sd-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.15; } }
+@keyframes sd-glow {
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.4)); }
+  50% { filter: drop-shadow(0 0 18px rgba(255, 255, 255, 0.95)); }
+}
+@keyframes sd-rainbow { to { filter: hue-rotate(360deg); } }
+@keyframes sd-wobble {
+  0%, 100% { transform: scale(1, 1); }
+  25% { transform: scale(1.06, 0.94); }
+  50% { transform: scale(0.95, 1.05); }
+  75% { transform: scale(1.03, 0.97); }
+}
+@keyframes sd-breathe { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.75; transform: scale(0.97); } }
+
+/* ---- ウィジェット共通 ---- */
+.sd-w {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  line-height: 1.3;
+}
+
+.sd-avatar {
+  flex: none;
+  border-radius: 50%;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.15);
+}
+.sd-avatar-letter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, #7c5cff, #ff5c8a);
+}
+
+/* チャット */
+.sd-chat {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.sd-chat.newest-top { justify-content: flex-start; }
+.sd-chat-msg {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5em;
+  padding: 0.45em 0.7em;
+  flex: none;
+  max-width: 100%;
+  box-sizing: border-box;
+  align-self: flex-start;
+}
+.sd-chat-body { min-width: 0; }
+.sd-chat-name { font-weight: 800; font-size: 0.8em; margin-bottom: 0.1em; }
+.sd-chat-text { overflow-wrap: anywhere; }
+
+/* 弾幕 */
+.sd-danmaku { overflow: hidden; }
+.sd-dm-item {
+  position: absolute;
+  left: 0;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+/* アラート */
+.sd-alert {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+.sd-alert-idle { visibility: hidden; }
+.sd-alert-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3em;
+  max-width: 100%;
+  max-height: 100%;
+  text-align: center;
+  box-sizing: border-box;
+}
+.sd-alert-box.boxed {
+  padding: 0.8em 1.4em;
+  border: 4px solid;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+}
+.sd-alert-media { display: block; object-fit: contain; border-radius: 16px; }
+.sd-alert-title { font-weight: 900; line-height: 1.15; overflow-wrap: anywhere; }
+.sd-alert-message { font-weight: 700; line-height: 1.25; overflow-wrap: anywhere; }
+
+/* ゴール */
+.sd-goal { display: flex; flex-direction: column; justify-content: center; gap: 0.25em; overflow: visible; }
+.sd-goal-head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5em; font-weight: 800; }
+.sd-goal-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sd-goal-value { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.sd-goal-track { position: relative; width: 100%; overflow: hidden; flex: none; }
+.sd-goal-fill { height: 100%; width: 0; transition: width 0.6s cubic-bezier(.2,.8,.2,1); }
+.sd-goal.done .sd-goal-fill { animation: sd-glow 1.4s ease-in-out infinite; }
+.sd-goal.shape-ring { align-items: center; }
+.sd-goal-ring { position: absolute; inset: 0; width: 100%; height: 100%; }
+.sd-goal-ring circle:last-child { transition: stroke-dasharray 0.6s cubic-bezier(.2,.8,.2,1); }
+.sd-goal-center {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-weight: 800;
+}
+
+/* ランキング */
+.sd-board { padding: 0.7em 0.9em; display: flex; flex-direction: column; gap: 0.35em; }
+.sd-board-title { font-weight: 900; margin-bottom: 0.2em; }
+.sd-board-row { display: flex; align-items: center; gap: 0.55em; }
+.sd-board-rank { width: 1.4em; text-align: center; font-weight: 900; flex: none; }
+.sd-board-name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 700; }
+.sd-board-coins { flex: none; font-variant-numeric: tabular-nums; opacity: 0.9; }
+.sd-board-empty { opacity: 0.6; font-size: 0.8em; }
+
+/* 最近のイベント */
+.sd-events { display: flex; gap: 0.35em; }
+.sd-events-row { display: flex; align-items: center; gap: 0.5em; padding: 0.35em 0.7em; flex: none; white-space: nowrap; }
+.sd-events-text { overflow: hidden; text-overflow: ellipsis; font-weight: 700; }
+
+/* タイマー */
+/* ギミック（クリエイターモードで作ったもの）。中身は canvas に描く */
+.sd-gimmick { display: flex; }
+.sd-gimmick .gm-canvas { display: block; width: 100%; height: 100%; object-fit: contain; }
+.sd-gimmick-empty {
+  margin: auto;
+  padding: 12px 18px;
+  border: 2px dashed #ffffff66;
+  border-radius: 12px;
+  color: #ffffffcc;
+  font: 700 22px/1.4 "Noto Sans JP", sans-serif;
+  text-align: center;
+}
+
+.sd-timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  overflow: visible;
+}
+.sd-timer-label { font-weight: 700; opacity: 0.85; margin-bottom: 0.2em; }
+
+/* パーティクル */
+.sd-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 10;
+}
+.sd-particle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  will-change: transform, opacity;
+  pointer-events: none;
+  line-height: 1;
+}
+
+/* ---- オーバーレイのページ（/overlay） ---- */
+html.sd-overlay-html,
+body.sd-overlay-page {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: transparent;
+}
+body.sd-overlay-page.sd-preview-bg {
+  background-color: #1d1d2b;
+  background-image:
+    linear-gradient(45deg, #26263a 25%, transparent 25%), linear-gradient(-45deg, #26263a 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #26263a 75%), linear-gradient(-45deg, transparent 75%, #26263a 75%);
+  background-size: 40px 40px;
+  background-position: 0 0, 0 20px, 20px -20px, -20px 0;
+  min-height: 100vh;
+}
+.sd-stage {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+}
+.sd-overlay-msg {
+  position: fixed;
+  inset: auto 16px 16px 16px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: rgba(15, 15, 30, 0.9);
+  color: #fff;
+  font: 600 16px/1.5 "Noto Sans JP", sans-serif;
+}
+.sd-overlay-msg[hidden] { display: none; }

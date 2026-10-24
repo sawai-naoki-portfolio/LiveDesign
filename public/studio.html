@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>LiveDesign Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap">
+  <link rel="stylesheet" href="css/studio-render.css">
+  <link rel="stylesheet" href="css/studio.css">
+  <link rel="stylesheet" href="css/creator.css">
+</head>
+
+<body class="studio">
+  <!-- デザインの一覧（/studio を ID なしで開いたとき） -->
+  <div id="home" class="home" hidden></div>
+
+  <!-- クリエイターモード（/studio?gimmick=<id>）。中身は js/studio/creator/creator.js が作る -->
+  <div id="creator" class="app creator" hidden></div>
+
+  <!-- エディタ（アーティストモード） -->
+  <div id="app" class="app" hidden>
+    <header class="topbar">
+      <button type="button" id="btnHome" class="btn ghost" title="デザインの一覧へ">◀ 一覧</button>
+      <span class="logo" aria-hidden="true">◆</span>
+      <input type="text" id="sceneName" class="scene-name" aria-label="デザインの名前">
+      <span id="saveState" class="save-state"></span>
+      <span class="spacer"></span>
+      <button type="button" id="btnUndo" class="icon-btn" title="元に戻す（Ctrl+Z）"></button>
+      <button type="button" id="btnRedo" class="icon-btn" title="やり直し（Ctrl+Shift+Z）"></button>
+      <span class="zoom">
+        <button type="button" id="zoomOut" class="icon-btn" title="縮小">−</button>
+        <button type="button" id="zoomLabel" class="zoom-label" title="表示倍率">100%</button>
+        <button type="button" id="zoomIn" class="icon-btn" title="拡大">＋</button>
+      </span>
+      <label class="snap" title="ほかの要素やキャンバスの中心にぴったり合わせる（Ctrl を押している間は無効）">
+        <input type="checkbox" id="snapToggle"> スナップ
+      </label>
+      <button type="button" id="btnCopyUrl" class="btn">🔗 OBS 用 URL</button>
+      <button type="button" id="btnPreview" class="btn primary">配信画面で見る ↗</button>
+    </header>
+
+    <div class="main">
+      <nav id="toolrail" class="toolrail" aria-label="道具"></nav>
+
+      <aside class="side left">
+        <div class="tabs" data-tabs="left">
+          <button type="button" data-tab="library">素材</button>
+          <button type="button" data-tab="uploads">アップロード</button>
+          <button type="button" data-tab="layers">レイヤー</button>
+        </div>
+        <div id="tab-library" class="tab-body"></div>
+        <div id="tab-uploads" class="tab-body" hidden></div>
+        <div id="tab-layers" class="tab-body layers" hidden></div>
+      </aside>
+
+      <section id="viewport" class="viewport" data-tool="select">
+        <div id="world" class="world">
+          <div id="artboard" class="artboard"></div>
+          <div id="particles" class="sd-particles"></div>
+        </div>
+        <svg id="ui" class="ui-layer" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div id="hintbar" class="hintbar"></div>
+      </section>
+
+      <aside class="side right">
+        <div class="tabs" data-tabs="right">
+          <button type="button" data-tab="design">デザイン</button>
+          <button type="button" data-tab="rules">イベント</button>
+          <button type="button" data-tab="test">テスト</button>
+        </div>
+        <div id="tab-design" class="tab-body"></div>
+        <div id="tab-rules" class="tab-body" hidden></div>
+        <div id="tab-test" class="tab-body" hidden></div>
+      </aside>
+    </div>
+  </div>
+
+  <datalist id="studio-var-names"></datalist>
+
+  <script src="js/ws-client.js"></script>
+  <script type="module" src="js/studio/studio.js"></script>
+</body>
+
+</html>

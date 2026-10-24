@@ -1,0 +1,16 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Dependencies
+node_modules/
+
+# Environment Variables
+.env
+
+# 実行時に読み書きするもの（デザイン・素材・カウンター）。自動生成なので追跡しない
+data/
+
+# macOS
+.DS_Store

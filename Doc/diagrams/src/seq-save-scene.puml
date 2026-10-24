@@ -1,0 +1,29 @@
+@startuml seq-save-scene
+!include _style.iuml
+title シーケンス図③ デザインを保存すると OBS の画面がその場で変わる
+autonumber "<b>[0]"
+
+actor 配信者 as U
+participant "エディタ\n(canvas.js / document.js)" as Ed
+participant "studio.js\ndocumentRoutes('scenes')" as API
+participant "auth.js\nrequireUser" as Auth
+participant "lib/studio/scene.js\nsanitizeScene()" as San
+participant "workspace.js\nsaveDocument()" as WS
+database "SQLite" as DB
+participant "net.js" as Net
+participant "OBS の /overlay" as OV
+
+U -> Ed : 図形を動かす・文字を変える
+Ed -> Ed : Undo 履歴に積む・自動保存を予約
+Ed -> API : PUT /api/studio/scenes/:id（JSON）
+API -> Auth : 本文を読む前にログインを確認
+note right : ログインしていない人の\n大きな本文は読まない
+API -> San : 検査（要素 500・入れ子 4・ルール 100・\n色や URL の形・CSS 注入・__proto__）
+San --> API : 保存できる形
+API -> WS : saveDocument(w, "scenes", scene)
+WS -> DB : UPSERT scenes（本人の user_id）
+API -> Net : broadcastTo(userId, studioScene + 置いたギミックの中身)
+Net --> Ed : 「保存済み」
+Net --> OV : studioScene
+OV -> OV : その場で描き直す（OBS は触らない）
+@enduml

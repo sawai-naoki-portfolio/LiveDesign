@@ -1,0 +1,41 @@
+@startuml screen-transition
+!include _style.iuml
+title 画面遷移図 — LiveDesign
+hide empty description
+
+state "P01 トップページ\n/" as P01
+state "P02 ログイン・新規登録\n/login" as P02
+state "OAuth 同意画面\n(Google / TikTok)" as OAuth
+state "/studio（ログイン必須）" as Studio {
+  state "P10 一覧（アーティストモード）\nはじめかた・テンプレート・デザイン" as P10
+  state "P11 一覧（クリエイターモード）\nテンプレート・ミニゲーム・ギミック" as P11
+  state "P12 設定\nTikTok 接続・合鍵・API キー・アカウント" as P12
+  state "P20 デザインエディタ\n（デザイン / イベント / テスト タブ）" as P20
+  state "P30 ギミックエディタ\n（シーン / ブループリント / 並べる）" as P30
+  P10 -right-> P11 : モード切替
+  P11 -left-> P10 : モード切替
+}
+state "P40 オーバーレイ\n/overlay?id=…&k=…" as P40
+
+[*] --> P01
+P01 --> P02 : 「無料ではじめる」/「ログイン」
+P02 --> OAuth : Google / TikTok で続ける
+OAuth --> P10 : コールバック
+P02 --> P10 : ログイン・登録成功
+P01 --> P10 : ログイン済みなら自動で /studio
+P10 --> P12 : ユーザー名（#settings）
+P10 --> P20 : テンプレート / デザインを開く
+P11 --> P30 : テンプレート / ギミックを開く
+P20 --> P10 : ◀ 一覧
+P30 --> P11 : ◀ 一覧
+P20 --> P30 : 置いたギミックの\n「クリエイターモードで編集」
+P30 --> P20 : 「アーティストモードで使う」
+P20 --> P40 : 「配信画面で見る ↗」\n（OBS URL をコピーして貼る）
+P12 --> P01 : ログアウト / アカウント削除
+
+note right of P40
+  ログイン不要（URL の合鍵で認証）。
+  OBS のブラウザソース / LIVE Studio のリンクソースに貼る。
+  &fit=0・&mute=1・&bg=1 で表示を調整。
+end note
+@enduml

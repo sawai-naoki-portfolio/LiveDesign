@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ja" class="sd-overlay-html">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>LiveDesign オーバーレイ</title>
+  <link rel="stylesheet" href="css/studio-render.css">
+</head>
+
+<body class="sd-overlay-page">
+  <!-- OBS のブラウザソースに貼る画面。/studio で作ったデザインを ?id= で指定する。
+       幅・高さはデザインと同じにすると等倍で映る（違うときは画面に合わせて縮める）。 -->
+  <div id="stage" class="sd-stage">
+    <div id="scene"></div>
+    <div id="particles" class="sd-particles"></div>
+  </div>
+  <div id="message" class="sd-overlay-msg" hidden></div>
+
+  <script src="js/ws-client.js"></script>
+  <script type="module" src="js/studio/overlay.js"></script>
+</body>
+
+</html>

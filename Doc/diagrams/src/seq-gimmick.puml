@@ -1,0 +1,36 @@
+@startuml seq-gimmick
+!include _style.iuml
+title シーケンス図④ ギミックのブループリント実行（ギフトでボールを降らせる）
+autonumber "<b>[0]"
+
+participant "overlay.js /\nクリエイターの再生" as Host
+participant "player.js" as P
+participant "graph.js\n（実行器）" as G
+participant "nodes.js\n（ノード定義）" as N
+participant "expr.js\n（式）" as E
+participant "world.js\n（物理・当たり判定）" as W
+participant "synth.js" as S
+
+Host -> P : 配信のイベント（gift, 個数 5, コイン 1）
+P -> G : fire("event.gift", payload)
+G -> N : 「ギフトが来たとき」の出力ピン\n（人・ギフト名・個数・コイン）
+G -> G : 実行ピンをたどる
+loop For Loop（個数ぶん）
+  G -> N : 「オブジェクトを出す: ボール（プレハブ）」
+  N -> W : spawn(prefab, x = random(100, W - 100))
+  G -> E : 式を評価（自前のパーサ。eval / Function は使わない）
+end
+G -> N : 「変数に足す: score += コイン」
+G -> N : 「音を鳴らす」
+N -> S : その場で波形を合成
+loop 毎フレーム
+  P -> W : step(dt)：重力・跳ね返り・当たり判定
+  W --> G : 「ぶつかったとき（ball × block）」
+  G -> N : 「消す」「エフェクトを出す」
+end
+note over G
+  実行の線がぐるぐる回る・合図が合図を呼び続ける・計算ノードが輪になる、
+  といった作りでも上限で止め、コンソールに理由を出す（配信は止まらない）。
+  関数の再帰は 16 段まで。オブジェクト・パーティクル・実行ノード数にも上限。
+end note
+@enduml

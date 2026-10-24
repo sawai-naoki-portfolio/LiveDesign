@@ -1,0 +1,51 @@
+@startuml seq-live-event
+!include _style.iuml
+title シーケンス図① TikTok のギフトでオーバーレイが動くまで
+autonumber "<b>[0]"
+
+actor 視聴者 as V
+participant "TikTok LIVE" as TT
+participant "live.js\n（@ID ごとの room）" as Live
+participant "studio.js\nstudioIngest()" as Studio
+participant "workspace.js\nWorkspace" as WS
+participant "RuleEngine\n(lib/studio/rules.js)" as RE
+participant "net.js\nbroadcastTo()" as Net
+participant "OBS の /overlay\n(overlay.js + runtime.js)" as OV
+participant "ギミック\n(player.js + graph.js)" as GM
+
+== 接続（画面を開いたとき） ==
+OV -> Net : WebSocket 接続（?k=合鍵）
+Net -> Live : onPresenceChange → syncUser(userId)
+alt その @ID の room がまだ無い
+  Live -> TT : tiktok-live-connector で接続\n（Euler Stream の署名）
+  note right : 配信が始まっていなければ\n間隔を広げながら待って繋ぎ直す
+else 既にある（他の利用者も同じ @ID）
+  Live -> Live : subscribers に追加（接続は 1 本のまま）
+end
+Net --> OV : state（デザイン・置いたギミック・カウンター）
+
+== イベント ==
+V -> TT : ギフト「ローズ ×5」
+TT -> Live : gift イベント
+Live -> Live : 連打の途中は数えない（repeatEnd で確定）
+loop room の subscribers ごと
+  Live -> Studio : studioIngest(userId, "gift", user, data)
+  Studio -> WS : getWorkspace(userId)
+  Studio -> Studio : イベントを正規化\n（コイン = 単価 × 個数、名前は文字列で）
+  Studio -> WS : vars.recordEvent()・ランキング更新
+  Studio -> Net : broadcastTo(userId, studioEvent)
+  Net --> OV : チャット・最近のイベント・ゴールを更新
+  Studio -> RE : evaluate(scenes, event)
+  RE -> RE : trigger（ギフト名・最低コイン…）\nとクールダウンを判定
+  RE --> Studio : 発火したルール
+  alt counter / timer アクション
+    Studio -> WS : applyCounter / applyTimer → まとめて保存
+  end
+  Studio -> Net : broadcastTo(userId, studioAction)
+  Net --> OV : アラート・紙吹雪・効果音・読み上げ…
+  opt ギミックを置いている
+    OV -> GM : 「ギフトが来たとき」ノード / 合図
+    GM -> GM : ブループリントを実行（ボールを出す・スコア加算）
+  end
+end
+@enduml

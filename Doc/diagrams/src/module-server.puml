@@ -1,0 +1,65 @@
+@startuml module-server
+!include _style.iuml
+title モジュール構成図（サーバー）— 依存は一方向
+
+[index.js\n起動と配線だけ] as Index
+package "server/" {
+  [config.js] as config
+  [net.js] as net
+  [db.js] as db
+  [auth.js] as auth
+  [workspace.js] as workspace
+  [assets.js] as assets
+  [studio.js] as studio
+  [live.js] as live
+  [demo.js] as demo
+}
+package "lib/（サーバーにもブラウザにも依存しない純粋ロジック）" as Lib {
+  package "lib/auth" as LibAuth {
+    [password.js\nscrypt・トークン] as pw
+    [rate-limit.js] as rl
+    [cookies.js] as ck
+    [oauth.js\nGoogle / TikTok] as oauth
+  }
+  package "lib/studio" as LibStudio {
+    [scene.js\nデザインの検査] as scene
+    [gimmick.js\nギミックの検査] as gimmick
+    [sanitize.js] as san
+    [rules.js\nルールの判定] as rules
+    [variables.js\nカウンター・タイマー] as vars
+  }
+  [live-events.js] as le
+  [tiktok.js] as tk
+}
+
+config --> net
+net --> db
+db --> auth
+auth --> workspace
+auth --> assets
+workspace --> studio
+assets --> studio
+studio --> live
+studio --> demo
+live --> Index
+demo --> Index
+
+auth ..> pw
+auth ..> rl
+auth ..> ck
+auth ..> oauth
+workspace ..> scene
+workspace ..> gimmick
+workspace ..> rules
+workspace ..> vars
+scene ..> san
+gimmick ..> san
+live ..> le
+live ..> tk
+
+note right of config
+  環境変数を読むのは config.js だけ。
+  依存の向き・公開範囲・ログインの付け忘れは
+  test/structure.test.mjs が機械的に見張る。
+end note
+@enduml

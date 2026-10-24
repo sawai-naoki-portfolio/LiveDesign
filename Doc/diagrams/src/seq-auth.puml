@@ -1,0 +1,48 @@
+@startuml seq-auth
+!include _style.iuml
+title シーケンス図② 登録・ログインと 3 種類の認証
+autonumber "<b>[0]"
+
+actor 配信者 as U
+participant "login.html\nlogin.js" as Page
+participant "net.js\nsameOriginOnly" as Net
+participant "auth.js" as Auth
+participant "RateLimiter" as RL
+participant "password.js\n(scrypt)" as PW
+database "SQLite" as DB
+
+== 新規登録 ==
+U -> Page : 表示名・メール・パスワード
+Page -> Net : POST /api/auth/register
+Net -> Net : Origin が自分のサイトか・JSON か（CSRF 対策）
+Net -> Auth : 登録処理へ
+Auth -> RL : 同じ IP からの登録回数（1 時間 10 回）
+Auth -> PW : passwordProblem()（8〜200 文字）
+Auth -> PW : hashPassword()（scrypt N=16384）
+Auth -> DB : INSERT users（合鍵・API キーを発行）
+Auth -> Auth : randomToken(32) → セッション
+Auth -> DB : INSERT sessions（**SHA-256 ハッシュだけ**を保存）
+Auth --> Page : Set-Cookie: ld_session（HttpOnly・SameSite=Lax・Secure）
+Page --> U : /studio へ（戻り先は自サイト内だけ）
+
+== ログイン ==
+U -> Page : メール・パスワード
+Page -> Auth : POST /api/auth/login
+Auth -> RL : IP＋メール（15 分 10 回）・IP（15 分 60 回）
+Auth -> DB : SELECT users WHERE email
+Auth -> PW : verifyPassword()\n（知らないメールでも同じだけ時間をかける）
+alt 失敗
+  Auth --> Page : 401
+else 成功
+  Auth --> Page : Set-Cookie
+end
+
+== 3 種類の認証 ==
+note over Auth
+  | 入口 | 認証 | できること |
+  | /studio・/api/* | Cookie（セッション） | すべて（本人のものだけ） |
+  | /overlay・WebSocket ?k= | URL の合鍵 | 読み取りのみ（OBS 用） |
+  | /api/studio/event・/vars | Bearer API キー | イベント投入とカウンターだけ |
+  キーが漏れてもアカウントは乗っ取られない
+end note
+@enduml
