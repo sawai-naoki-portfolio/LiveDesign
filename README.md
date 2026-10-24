@@ -2,7 +2,13 @@
 
 [![test](https://github.com/sawai-naoki-portfolio/LiveDesign/actions/workflows/test.yml/badge.svg)](https://github.com/sawai-naoki-portfolio/LiveDesign/actions/workflows/test.yml)
 
-> 澤井直輝のポートフォリオ作品のひとつです（[作品一覧へ](https://github.com/sawai-naoki-portfolio)）。
+> **ポートフォリオ作品**（[作品一覧へ](https://github.com/sawai-naoki-portfolio)）。設計資料（要件定義書・画面定義書・設計書・テスト結果・UML 図）は [`Doc/`](Doc/README.md) にあります。
+>
+> | 項目 | 内容 |
+> |---|---|
+> | 開発 | 個人開発。企画・仕様決め・設計の判断・レビュー・テストでの検証は自分で行い、実装とドキュメント作成には生成 AI（Claude Code）を活用 |
+> | 開発時期 | 2026 年 8 月〜10 月（コミットの記録: 8/11〜10/18） |
+> | 公開状況 | 未公開（手元や Docker で起動して試せる） |
 
 配信・ゲーム実況用の**ウィジェットデザインツール**を、誰でも登録して使える Web サービスとして動かすためのものです。
 モードは2つあります。
