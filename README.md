@@ -2,7 +2,7 @@
 
 [![test](https://github.com/sawai-naoki-portfolio/LiveDesign/actions/workflows/test.yml/badge.svg)](https://github.com/sawai-naoki-portfolio/LiveDesign/actions/workflows/test.yml)
 
-> 澤井直輝のポートフォリオ作品のひとつです（[作品一覧へ](https://github.com/sawai-naoki-portfolio/Portfolio)）。
+> 澤井直輝のポートフォリオ作品のひとつです（[作品一覧へ](https://github.com/sawai-naoki-portfolio)）。
 
 配信・ゲーム実況用の**ウィジェットデザインツール**を、誰でも登録して使える Web サービスとして動かすためのものです。
 モードは2つあります。
